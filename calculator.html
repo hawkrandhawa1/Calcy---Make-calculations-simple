@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .calculator-container {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .calculator {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 32px 28px;
+            box-shadow: 
+                0 8px 32px rgba(31, 38, 135, 0.15),
+                0 2px 16px rgba(31, 38, 135, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 420px;
+            width: 100%;
+            backdrop-filter: blur(20px);
+        }
+
+        .history-panel {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 
+                0 8px 32px rgba(31, 38, 135, 0.15),
+                0 2px 16px rgba(31, 38, 135, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 280px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mode-toggle {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .display-container {
+            margin-bottom: 24px;
+        }
+
+        .memory-display {
+            text-align: right;
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 8px;
+            height: 20px;
+        }
+
+        .display {
+            width: 100%;
+            height: 96px;
+            font-size: 3em;
+            text-align: right;
+            padding: 0 24px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            color: #1e293b;
+            outline: none;
+            overflow: hidden;
+            line-height: 96px;
+            font-weight: 300;
+            letter-spacing: -0.02em;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .buttons.scientific {
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        .btn {
+            height: 64px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            transition: all 0.1s;
+        }
+
+        .btn-number {
+            background: #ffffff;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .btn-number:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-operator {
+            background: #3b82f6;
+            color: white;
+            border: 1px solid #2563eb;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-operator:hover {
+            background: #2563eb;
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-equals {
+            background: #1d4ed8;
+            color: white;
+            border: 1px solid #1e40af;
+            box-shadow: 0 2px 8px rgba(29, 78, 216, 0.3);
+        }
+
+        .btn-equals:hover {
+            background: #1e40af;
+            box-shadow: 0 4px 16px rgba(29, 78, 216, 0.4);
+        }
+
+        .btn-clear {
+            background: #6b7280;
+            color: white;
+            border: 1px solid #4b5563;
+            box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);
+        }
+
+        .btn-clear:hover {
+            background: #4b5563;
+            box-shadow: 0 4px 16px rgba(107, 114, 128, 0.4);
+        }
+
+        .btn-scientific {
+            background: #8b5cf6;
+            color: white;
+            border: 1px solid #7c3aed;
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+            font-size: 1em;
+        }
+
+        .btn-scientific:hover {
+            background: #7c3aed;
+            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-memory {
+            background: #059669;
+            color: white;
+            border: 1px solid #047857;
+            box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
+            font-size: 1em;
+        }
+
+        .btn-memory:hover {
+            background: #047857;
+            box-shadow: 0 4px 16px rgba(5, 150, 105, 0.4);
+        }
+
+        .btn-wide {
+            grid-column: span 2;
+        }
+
+        .calculator-title {
+            text-align: center;
+            color: #1e293b;
+            font-size: 1.5em;
+            margin-bottom: 24px;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+        }
+
+        .history-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .clear-history {
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .clear-history:hover {
+            background: #f1f5f9;
+            color: #374151;
+        }
+
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .history-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .history-item:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .history-expression {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .history-result {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .history-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .history-list::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 3px;
+        }
+
+        .history-list::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .history-list::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        @media (max-width: 768px) {
+            .calculator-container {
+                flex-direction: column;
+            }
+
+            .history-panel {
+                width: 100%;
+                height: 300px;
+                position: fixed;
+                bottom: -300px;
+                right: 0;
+                top: auto;
+                transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .history-panel.open {
+                bottom: 0;
+                right: 0;
+            }
+
+            .history-toggle {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin-bottom: 16px;
+            }
+
+            .buttons.scientific {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .btn {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <div class="history-panel">
+            <div class="history-title">
+                History
+                <button class="clear-history" onclick="clearHistory()">Clear</button>
+            </div>
+            <div class="history-list" id="historyList">
+                <!-- History items will be populated here -->
+            </div>
+        </div>
+
+        <div class="calculator">
+            <h1 class="calculator-title">Calculator</h1>
+            
+            <div class="mode-toggle">
+                <button class="mode-btn active" onclick="switchMode('basic')">Basic</button>
+                <button class="mode-btn" onclick="switchMode('scientific')">Scientific</button>
+            </div>
+
+            <div class="display-container">
+                <div class="memory-display" id="memoryDisplay"></div>
+                <input type="text" class="display" id="display" readonly>
+            </div>
+
+            <div class="buttons" id="buttonGrid">
+                <!-- Basic mode buttons -->
+                <button class="btn btn-memory" onclick="memoryRecall()">MR</button>
+                <button class="btn btn-memory" onclick="memoryClear()">MC</button>
+                <button class="btn btn-memory" onclick="memoryAdd()">M+</button>
+                <button class="btn btn-memory" onclick="memorySubtract()">M-</button>
+
+                <button class="btn btn-clear" onclick="clearDisplay()">AC</button>
+                <button class="btn btn-operator" onclick="deleteLast()">⌫</button>
+                <button class="btn btn-operator" onclick="appendToDisplay('/')">/</button>
+                <button class="btn btn-operator" onclick="appendToDisplay('*')">×</button>
+
+                <button class="btn btn-number" onclick="appendToDisplay('7')">7</button>
+                <button class="btn btn-number" onclick="appendToDisplay('8')">8</button>
+                <button class="btn btn-number" onclick="appendToDisplay('9')">9</button>
+                <button class="btn btn-operator" onclick="appendToDisplay('-')">-</button>
+
+                <button class="btn btn-number" onclick="appendToDisplay('4')">4</button>
+                <button class="btn btn-number" onclick="appendToDisplay('5')">5</button>
+                <button class="btn btn-number" onclick="appendToDisplay('6')">6</button>
+                <button class="btn btn-operator" onclick="appendToDisplay('+')">+</button>
+
+                <button class="btn btn-number" onclick="appendToDisplay('1')">1</button>
+                <button class="btn btn-number" onclick="appendToDisplay('2')">2</button>
+                <button class="btn btn-number" onclick="appendToDisplay('3')">3</button>
+                <button class="btn btn-number" onclick="appendToDisplay('.')">.</button>
+
+                <button class="btn btn-number btn-wide" onclick="appendToDisplay('0')">0</button>
+                <button class="btn btn-equals btn-wide" onclick="calculate()">=</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let display = document.getElementById('display');
+        let memoryDisplay = document.getElementById('memoryDisplay');
+        let historyList = document.getElementById('historyList');
+        let buttonGrid = document.getElementById('buttonGrid');
+        
+        let currentInput = '';
+        let operator = '';
+        let previousInput = '';
+        let memory = 0;
+        let history = [];
+        let isScientificMode = false;
+
+        const basicButtons = `
+            <button class="btn btn-memory" onclick="memoryRecall()">MR</button>
+            <button class="btn btn-memory" onclick="memoryClear()">MC</button>
+            <button class="btn btn-memory" onclick="memoryAdd()">M+</button>
+            <button class="btn btn-memory" onclick="memorySubtract()">M-</button>
+
+            <button class="btn btn-clear" onclick="clearDisplay()">AC</button>
+            <button class="btn btn-operator" onclick="deleteLast()">⌫</button>
+            <button class="btn btn-operator" onclick="appendToDisplay('/')">/</button>
+            <button class="btn btn-operator" onclick="appendToDisplay('*')">×</button>
+
+            <button class="btn btn-number" onclick="appendToDisplay('7')">7</button>
+            <button class="btn btn-number" onclick="appendToDisplay('8')">8</button>
+            <button class="btn btn-number" onclick="appendToDisplay('9')">9</button>
+            <button class="btn btn-operator" onclick="appendToDisplay('-')">-</button>
+
+            <button class="btn btn-number" onclick="appendToDisplay('4')">4</button>
+            <button class="btn btn-number" onclick="appendToDisplay('5')">5</button>
+            <button class="btn btn-number" onclick="appendToDisplay('6')">6</button>
+            <button class="btn btn-operator" onclick="appendToDisplay('+')">+</button>
+
+            <button class="btn btn-number" onclick="appendToDisplay('1')">1</button>
+            <button class="btn btn-number" onclick="appendToDisplay('2')">2</button>
+            <button class="btn btn-number" onclick="appendToDisplay('3')">3</button>
+            <button class="btn btn-number" onclick="appendToDisplay('.')">.</button>
+
+            <button class="btn btn-number btn-wide" onclick="appendToDisplay('0')">0</button>
+            <button class="btn btn-equals btn-wide" onclick="calculate()">=</button>
+        `;
+
+        const scientificButtons = `
+            <button class="btn btn-scientific" onclick="scientificFunction('sin')">sin</button>
+            <button class="btn btn-scientific" onclick="scientificFunction('cos')">cos</button>
+            <button class="btn btn-scientific" onclick="scientificFunction('tan')">tan</button>
+            <button class="btn btn-scientific" onclick="scientificFunction('log')">log</button>
+            <button class="btn btn-scientific" onclick="scientificFunction('ln')">ln</button>
+
+            <button class="btn btn-memory" onclick="memoryRecall()">MR</button>
+            <button class="btn btn-memory" onclick="memoryClear()">MC</button>
+            <button class="btn btn-memory" onclick="memoryAdd()">M+</button>
+            <button class="btn btn-clear" onclick="clearDisplay()">AC</button>
+            <button class="btn btn-operator" onclick="deleteLast()">⌫</button>
+
+            <button class="btn btn-scientific" onclick="scientificFunction('sqrt')">√</button>
+            <button class="btn btn-scientific" onclick="scientificFunction('power')">x²</button>
+            <button class="btn btn-scientific" onclick="scientificFunction('factorial')">x!</button>
+            <button class="btn btn-operator" onclick="appendToDisplay('/')">/</button>
+            <button class="btn btn-operator" onclick="appendToDisplay('*')">×</button>
+
+            <button class="btn btn-number" onclick="appendToDisplay('7')">7</button>
+            <button class="btn btn-number" onclick="appendToDisplay('8')">8</button>
+            <button class="btn btn-number" onclick="appendToDisplay('9')">9</button>
+            <button class="btn btn-operator" onclick="appendToDisplay('-')">-</button>
+            <button class="btn btn-scientific" onclick="appendToDisplay('π')">π</button>
+
+            <button class="btn btn-number" onclick="appendToDisplay('4')">4</button>
+            <button class="btn btn-number" onclick="appendToDisplay('5')">5</button>
+            <button class="btn btn-number" onclick="appendToDisplay('6')">6</button>
+            <button class="btn btn-operator" onclick="appendToDisplay('+')">+</button>
+            <button class="btn btn-scientific" onclick="appendToDisplay('e')">e</button>
+
+            <button class="btn btn-number" onclick="appendToDisplay('1')">1</button>
+            <button class="btn btn-number" onclick="appendToDisplay('2')">2</button>
+            <button class="btn btn-number" onclick="appendToDisplay('3')">3</button>
+            <button class="btn btn-number" onclick="appendToDisplay('.')">.</button>
+            <button class="btn btn-operator" onclick="appendToDisplay('(')">(</button>
+
+            <button class="btn btn-number btn-wide" onclick="appendToDisplay('0')">0</button>
+            <button class="btn btn-equals" onclick="calculate()">=</button>
+            <button class="btn btn-operator" onclick="appendToDisplay(')')">)</button>
+        `;
+
+        function switchMode(mode) {
+            const modeButtons = document.querySelectorAll('.mode-btn');
+            modeButtons.forEach(btn => btn.classList.remove('active'));
+            
+            if (mode === 'scientific') {
+                buttonGrid.innerHTML = scientificButtons;
+                buttonGrid.className = 'buttons scientific';
+                modeButtons[1].classList.add('active');
+                isScientificMode = true;
+            } else {
+                buttonGrid.innerHTML = basicButtons;
+                buttonGrid.className = 'buttons';
+                modeButtons[0].classList.add('active');
+                isScientificMode = false;
+            }
+        }
+
+        function appendToDisplay(value) {
+            if (value === 'π') {
+                value = Math.PI.toString();
+            } else if (value === 'e') {
+                value = Math.E.toString();
+            }
+
+            if (['+', '-', '*', '/'].includes(value)) {
+                if (currentInput === '' && previousInput === '') {
+                    return;
+                }
+                if (operator && currentInput) {
+                    calculate();
+                }
+                operator = value;
+                previousInput = currentInput;
+                currentInput = '';
+                updateDisplay(previousInput + ' ' + (value === '*' ? '×' : value) + ' ');
+            } else {
+                if (value === '.' && currentInput.includes('.')) {
+                    return;
+                }
+                currentInput += value;
+                if (operator) {
+                    updateDisplay(previousInput + ' ' + (operator === '*' ? '×' : operator) + ' ' + currentInput);
+                } else {
+                    updateDisplay(currentInput);
+                }
+            }
+        }
+
+        function scientificFunction(func) {
+            if (!currentInput) return;
+            
+            let value = parseFloat(currentInput);
+            let result;
+            let expression;
+
+            switch (func) {
+                case 'sin':
+                    result = Math.sin(value * Math.PI / 180);
+                    expression = `sin(${value})`;
+                    break;
+                case 'cos':
+                    result = Math.cos(value * Math.PI / 180);
+                    expression = `cos(${value})`;
+                    break;
+                case 'tan':
+                    result = Math.tan(value * Math.PI / 180);
+                    expression = `tan(${value})`;
+                    break;
+                case 'log':
+                    result = Math.log10(value);
+                    expression = `log(${value})`;
+                    break;
+                case 'ln':
+                    result = Math.log(value);
+                    expression = `ln(${value})`;
+                    break;
+                case 'sqrt':
+                    result = Math.sqrt(value);
+                    expression = `√${value}`;
+                    break;
+                case 'power':
+                    result = Math.pow(value, 2);
+                    expression = `${value}²`;
+                    break;
+                case 'factorial':
+                    result = factorial(value);
+                    expression = `${value}!`;
+                    break;
+            }
+
+            result = Math.round(result * 100000000) / 100000000;
+            addToHistory(expression, result);
+            updateDisplay(result.toString());
+            currentInput = result.toString();
+            operator = '';
+            previousInput = '';
+        }
+
+        function factorial(n) {
+            if (n < 0) return NaN;
+            if (n === 0 || n === 1) return 1;
+            let result = 1;
+            for (let i = 2; i <= n; i++) {
+                result *= i;
+            }
+            return result;
+        }
+
+        function calculate() {
+            if (previousInput && operator && currentInput) {
+                try {
+                    let result;
+                    const prev = parseFloat(previousInput);
+                    const current = parseFloat(currentInput);
+                    
+                    switch (operator) {
+                        case '+':
+                            result = prev + current;
+                            break;
+                        case '-':
+                            result = prev - current;
+                            break;
+                        case '*':
+                            result = prev * current;
+                            break;
+                        case '/':
+                            if (current === 0) {
+                                updateDisplay('Error');
+                                resetCalculator();
+                                return;
+                            }
+                            result = prev / current;
+                            break;
+                        default:
+                            return;
+                    }
+                    
+                    result = Math.round(result * 100000000) / 100000000;
+                    
+                    const expression = `${previousInput} ${operator === '*' ? '×' : operator} ${currentInput}`;
+                    addToHistory(expression, result);
+                    
+                    updateDisplay(result.toString());
+                    currentInput = result.toString();
+                    operator = '';
+                    previousInput = '';
+                } catch (error) {
+                    updateDisplay('Error');
+                    resetCalculator();
+                }
+            }
+        }
+
+        function clearDisplay() {
+            resetCalculator();
+            updateDisplay('0');
+        }
+
+        function deleteLast() {
+            if (currentInput) {
+                currentInput = currentInput.slice(0, -1);
+                if (operator) {
+                    updateDisplay(previousInput + ' ' + (operator === '*' ? '×' : operator) + ' ' + currentInput);
+                } else {
+                    updateDisplay(currentInput || '0');
+                }
+            } else if (operator) {
+                operator = '';
+                currentInput = previousInput;
+                previousInput = '';
+                updateDisplay(currentInput);
+            }
+        }
+
+        // Memory functions
+        function memoryRecall() {
+            if (memory !== 0) {
+                currentInput = memory.toString();
+                updateDisplay(currentInput);
+            }
+        }
+
+        function memoryClear() {
+            memory = 0;
+            updateMemoryDisplay();
+        }
+
+        function memoryAdd() {
+            if (currentInput) {
+                memory += parseFloat(currentInput);
+                updateMemoryDisplay();
+            }
+        }
+
+        function memorySubtract() {
+            if (currentInput) {
+                memory -= parseFloat(currentInput);
+                updateMemoryDisplay();
+            }
+        }
+
+        function updateMemoryDisplay() {
+            if (memory !== 0) {
+                memoryDisplay.textContent = `M: ${memory}`;
+            } else {
+                memoryDisplay.textContent = '';
+            }
+        }
+
+        // History functions
+        function addToHistory(expression, result) {
+            history.unshift({ expression, result });
+            if (history.length > 50) {
+                history.pop();
+            }
+            renderHistory();
+        }
+
+        function renderHistory() {
+            historyList.innerHTML = '';
+            history.forEach((item, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <div class="history-expression">${item.expression}</div>
+                    <div class="history-result">${item.result}</div>
+                `;
+                historyItem.onclick = () => {
+                    currentInput = item.result.toString();
+                    updateDisplay(currentInput);
+                };
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        function clearHistory() {
+            history = [];
+            renderHistory();
+        }
+
+        function updateDisplay(value) {
+            display.value = value;
+        }
+
+        function resetCalculator() {
+            currentInput = '';
+            operator = '';
+            previousInput = '';
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+            
+            if (key >= '0' && key <= '9' || key === '.') {
+                appendToDisplay(key);
+            } else if (key === '+' || key === '-') {
+                appendToDisplay(key);
+            } else if (key === '*') {
+                appendToDisplay('*');
+            } else if (key === '/') {
+                event.preventDefault();
+                appendToDisplay('/');
+            } else if (key === 'Enter' || key === '=') {
+                event.preventDefault();
+                calculate();
+            } else if (key === 'Escape') {
+                clearDisplay();
+            } else if (key === 'Backspace') {
+                event.preventDefault();
+                deleteLast();
+            }
+        });
+
+        // Initialize display
+        updateDisplay('0');
+        updateMemoryDisplay();
+    </script>
+</body>
+</html>
