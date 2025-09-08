@@ -21,7 +21,7 @@ Click the green Code button → Download ZIP, then extract it
 
 Or clone it with Git:
 
-git clone https://github.com/yourusername/calculator-html.git
+git clone https://github.com/hawkrandhawa1/Calcy---Make-calculations-simple/blob/main/calculator.html
 
 
 Open the folder and find calculator.html.
